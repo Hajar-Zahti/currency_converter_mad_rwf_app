@@ -77,13 +77,14 @@ Le projet est composé de trois parties :
 ```bash
 cd Currency_Converter_Backend
 mvn spring-boot:run
+---
 
-### Backend
+### Mobile
 ```bash
 cd currency-converter-app
 npm install
 expo start
-
+----
 ### Admin Web
 ```bash
 cd currency-converter-admin-dashboard
