@@ -37,7 +37,6 @@ Le projet est composé de trois parties :
 ## Dashboard Web (Admin)
 -Supervision des utilisateurs, transactions, logs et statistiques globales.
 
----
 
 ## ⚙️ Technologies utilisées
 
@@ -56,12 +55,10 @@ Le projet est composé de trois parties :
 - Angular
 - TypeScript
   
----
 
 ### 🔐 Authentification
 - JWT pour sécuriser les échanges entre le mobile, l’admin et le backend.
 
----
 
 ## 🧰 Outils de développement
 
@@ -77,16 +74,15 @@ Le projet est composé de trois parties :
 ```bash
 cd Currency_Converter_Backend
 mvn spring-boot:run
----
 
-### Mobile
-```bash
+
+
 cd currency-converter-app
 npm install
 expo start
-----
-### Admin Web
-```bash
+
+
+
 cd currency-converter-admin-dashboard
 npm install
 ng serve
