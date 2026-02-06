@@ -1,0 +1,71 @@
+.home {
+  min-height: 100vh;
+  background: #2a6bab;
+  padding: 30px 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.header h1 {
+  font-size: 26px;
+  color: #eaf4fb;
+  margin: 0;
+}
+
+.header p {
+  font-size: 14px;
+  color: #d6e2f0;
+}
+
+/* CARD */
+.info {
+  background: #3b7fc4;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 30px;
+}
+
+.info p {
+  font-size: 14px;
+  color: #f5f7fa;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.info ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.info li {
+  font-size: 14px;
+  color: #eaf4fb;
+  margin-bottom: 8px;
+}
+
+/* BUTTON */
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: #5fa8d3;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #4b96c9;
+}

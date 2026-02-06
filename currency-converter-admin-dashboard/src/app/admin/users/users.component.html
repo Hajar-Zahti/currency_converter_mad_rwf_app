@@ -1,0 +1,173 @@
+<div class="users-container">
+      <div class="page-header">
+        <h2>User Management</h2>
+        <div class="header-actions">
+          <button class="btn btn-primary" (click)="refreshUsers()">
+            <i class="icon"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" placeholder="Search users..."
+               [(ngModel)]="searchTerm" (input)="filterUsers()">
+        <select [(ngModel)]="roleFilter" (change)="filterUsers()">
+          <option value="">All Roles</option>
+          <option value="ADMIN">Admin</option>
+          <option value="USER">User</option>
+        </select>
+        <select [(ngModel)]="statusFilter" (change)="filterUsers()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Transactions</th>
+              <th>Balance MAD</th>
+              <th>Balance RWF</th>
+
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td>{{ user.id }}</td>
+              <td>
+                <div class="user-avatar">
+                  <div class="avatar-circle">{{ getInitials(user.fullName) }}</div>
+                  <div>
+                    <strong>{{ user.fullName }}</strong>
+                  </div>
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td class="text-center">
+                <span class="transaction-count">{{ user.transactionCount }}</span>
+              </td>
+              <td class="text-right">
+                <span class="balance" [class.positive]="user.totalBalance > 0">
+                  {{ user.totalBalance | currency:'MAD' }}
+                </span>
+              </td>
+               <td class="text-right">
+                <span class="balance" [class.positive]="user.totalBalance > 0">
+                  {{ user.totalBalance | currency:'RWF' }}
+                </span>
+              </td>
+              <td class="actions">
+                 <button class="btn-action btn-view" title="View Details"
+                    (click)="viewUserDetails(user)">
+              <i class="fas fa-eye"></i> Details
+            </button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" *ngIf="filteredUsers.length > 0">
+        <button [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+      </div>
+
+      <div class="no-data" *ngIf="filteredUsers.length === 0 && !isLoading">
+        <i class="icon">👤</i>
+        <p>No users found</p>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading users...</p>
+      </div>
+    </div>
+
+    <!-- Modal pour les détails de l'utilisateur -->
+    <div class="modal" *ngIf="selectedUser">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>User Details</h3>
+          <button class="close-btn" (click)="selectedUser = null">×</button>
+        </div>
+
+        <div class="user-details">
+          <div class="detail-section">
+            <h4>Personal Information</h4>
+            <div class="detail-row">
+              <strong>ID:</strong> {{ selectedUser.id }}
+            </div>
+            <div class="detail-row">
+              <strong>Full Name:</strong> {{ selectedUser.fullName }}
+            </div>
+            <div class="detail-row">
+              <strong>Email:</strong> {{ selectedUser.email }}
+            </div>
+            <div class="detail-row">
+              <strong>Phone:</strong> {{ selectedUser.phoneNumber || 'N/A' }}
+            </div>
+            <div class="detail-row">
+              <strong>Role:</strong>
+              <span class="badge" [class.badge-admin]="selectedUser.role === 'ADMIN'">
+                {{ selectedUser.role }}
+              </span>
+            </div>
+            <div class="detail-row">
+              <strong>Status:</strong>
+              <span class="status" [class.active]="selectedUser.isActive">
+                {{ selectedUser.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedUser.bankAccounts?.length > 0">
+            <h4>Bank Accounts ({{ selectedUser.bankAccounts.length }})</h4>
+            <div class="accounts-list">
+              <div class="account-card" *ngFor="let account of selectedUser.bankAccounts">
+                <div class="account-header">
+                  <strong>{{ account.bankName }}</strong>
+                  <span class="currency-badge">{{ account.currency }}</span>
+                </div>
+                <div class="account-number">{{ account.accountNumber }}</div>
+                <div class="account-balance">
+                  Balance: {{ account.currentBalance | currency:account.currency }}
+                </div>
+                <div class="account-footer">
+                  <small>Last sync: {{ formatDate(account.lastSync) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedUser.transactions?.length > 0">
+            <h4>Recent Transactions ({{ selectedUser.transactions.length }})</h4>
+            <div class="transactions-list">
+              <div class="transaction-item" *ngFor="let tx of selectedUser.transactions.slice(0, 5)">
+                <div class="tx-header">
+                  <strong>{{ tx.transactionRef }}</strong>
+                  <span class="tx-type">{{ tx.type }}</span>
+                </div>
+                <div class="tx-details">
+                  {{ tx.amount }} {{ tx.fromCurrency }} → {{ tx.finalAmount }} {{ tx.toCurrency }}
+                </div>
+                <div class="tx-footer">
+                  <small>{{ formatDate(tx.createdAt) }}</small>
+                  <span class="tx-status">{{ tx.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="selectedUser = null">Close</button>
+          <button class="btn btn-primary" (click)="editUser(selectedUser)">Edit User</button>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,174 @@
+<div class="transactions-container">
+      <div class="page-header">
+        <h2>All Transactions</h2>
+        <div class="header-actions">
+          <button class="btn btn-primary" (click)="refreshTransactions()">
+            <i class="icon"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <input type="text" placeholder="Search by reference..."
+                 [(ngModel)]="searchTerm" (input)="filterTransactions()">
+          <select [(ngModel)]="typeFilter" (change)="filterTransactions()">
+            <option value="">All Types</option>
+            <option value="MAD_TO_RWF">MAD → RWF</option>
+            <option value="RWF_TO_MAD">RWF → MAD</option>
+          </select>
+          <select [(ngModel)]="statusFilter" (change)="filterTransactions()">
+            <option value="">All Status</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="PENDING">Pending</option>
+            <option value="FAILED">Failed</option>
+          </select>
+          <input type="date" [(ngModel)]="dateFilter" (change)="filterTransactions()">
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Type</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Amount</th>
+              <th>Final Amount</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of filteredTransactions">
+              <td>
+                <span class="transaction-ref">{{ t.transactionRef }}</span>
+              </td>
+              <td>
+                <span class="transaction-type" [class]="'type-' + t.type?.toLowerCase()">
+                  {{ formatType(t.type) }}
+                </span>
+              </td>
+              <td>
+                <span class="currency">{{ t.fromCurrency }}</span>
+              </td>
+              <td>
+                <span class="currency">{{ t.toCurrency }}</span>
+              </td>
+              <td class="text-right">
+                {{ t.amount | number:'1.2-2' }} {{ t.fromCurrency }}
+              </td>
+              <td class="text-right">
+                <strong>{{ t.finalAmount | number:'1.2-2' }} {{ t.toCurrency }}</strong>
+              </td>
+              <td>{{ formatDate(t.createdAt) }}</td>
+              <td class="actions">
+            <button class="btn-action btn-view" title="View Details"
+                    (click)="viewTransactionDetails(t)">
+              <i class="fas fa-eye"></i> Details
+            </button>
+            <button class="btn-action btn-export" title="Export this transaction"
+                    (click)="exportTransaction(t)">
+              <i class="fas fa-download"></i> Export
+            </button>
+          </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" *ngIf="filteredTransactions.length > 0">
+        <button [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+      </div>
+
+      <div class="no-data" *ngIf="filteredTransactions.length === 0 && !isLoading">
+        <i class="fa-solid fa-credit-card"></i>
+        <p>No transactions found</p>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading transactions...</p>
+      </div>
+    </div>
+
+    <!-- Modal pour les détails de transaction -->
+    <div class="modal" *ngIf="selectedTransaction">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Transaction Details</h3>
+          <button class="close-btn" (click)="selectedTransaction = null">×</button>
+        </div>
+
+        <div class="transaction-details">
+          <div class="detail-section">
+            <h4>Transaction Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <strong>Reference:</strong>
+                <span class="transaction-ref">{{ selectedTransaction.transactionRef }}</span>
+              </div>
+              <div class="detail-item">
+                <strong>Type:</strong>
+                <span class="transaction-type" [class]="'type-' + selectedTransaction.type?.toLowerCase()">
+                  {{ formatType(selectedTransaction.type) }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <strong>Status:</strong>
+                <span class="status" [class]="'status-' + selectedTransaction.status?.toLowerCase()">
+                  {{ selectedTransaction.status }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <strong>Created:</strong>
+                {{ formatDateTime(selectedTransaction.createdAt) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>Exchange Details</h4>
+            <div class="exchange-card">
+              <div class="exchange-from">
+                <div class="exchange-amount">{{ selectedTransaction.amount | number:'1.2-2' }}</div>
+                <div class="exchange-currency">{{ selectedTransaction.fromCurrency }}</div>
+              </div>
+              <div class="exchange-arrow">→</div>
+              <div class="exchange-to">
+                <div class="exchange-amount">{{ selectedTransaction.finalAmount | number:'1.2-2' }}</div>
+                <div class="exchange-currency">{{ selectedTransaction.toCurrency }}</div>
+              </div>
+            </div>
+            <div class="exchange-rate-detail">
+              <strong>Exchange Rate:</strong> 1 {{ selectedTransaction.fromCurrency }} =
+              {{ selectedTransaction.exchangeRate | number:'1.6-6' }} {{ selectedTransaction.toCurrency }}
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedTransaction.userName">
+            <h4>User Information</h4>
+            <div class="user-card">
+              <div class="user-avatar">{{ getInitials(selectedTransaction.userName) }}</div>
+              <div class="user-info">
+                <div class="user-name">{{ selectedTransaction.userName }}</div>
+                <div class="user-email" *ngIf="selectedTransaction.userEmail">
+                  {{ selectedTransaction.userEmail }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="selectedTransaction = null">Close</button>
+          <button class="btn btn-primary">
+            Export Details
+          </button>
+        </div>
+      </div>
+    </div>

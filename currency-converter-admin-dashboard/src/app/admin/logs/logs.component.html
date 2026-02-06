@@ -1,0 +1,212 @@
+<div class="logs-container">
+      <div class="page-header">
+        <h2>Audit Logs</h2>
+        <div class="header-actions">
+          <button class="btn btn-primary" (click)="refreshLogs()">
+            <i class="icon"></i> Refresh
+          </button>
+          <button class="btn btn-danger" (click)="clearLogs()" *ngIf="filteredLogs.length > 0">
+            <i class="icon"></i> Clear All
+          </button>
+          <button class="btn btn-secondary" (click)="exportLogs()" *ngIf="filteredLogs.length > 0">
+            <i class="icon"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <input type="text" placeholder="Search by user email or action..."
+                [(ngModel)]="searchTerm" (input)="filterLogs()">
+
+
+        </div>
+        <div class="filter-group">
+          <input type="date" [(ngModel)]="dateFilter" (change)="filterLogs()">
+          <select [(ngModel)]="sortOrder" (change)="filterLogs()">
+            <option value="desc">Newest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-bar" *ngIf="logs.length > 0">
+        <div class="stat-card">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ logs.length }}</div>
+            <div class="stat-label">Total Logs</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ uniqueUsersCount }}</div>
+            <div class="stat-label">Unique Users</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ todayLogsCount }}</div>
+            <div class="stat-label">Today</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"></div>
+          <div class="stat-info">
+            <div class="stat-value">{{ getMostCommonAction() }}</div>
+            <div class="stat-label">Most Common Action</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of filteredLogs">
+              <td>{{ log.id }}</td>
+              <td>
+                <div class="timestamp-cell">
+                  <div>{{ formatDate(log.createdAt) }}</div>
+                  <small>{{ formatTime(log.createdAt) }}</small>
+                </div>
+              </td>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar-small">{{ getInitials(log.userEmail) }}</div>
+                  <div>
+                    <div class="user-email">{{ log.userEmail || 'System' }}</div>
+                    <small *ngIf="log.user?.fullName">{{ log.user.fullName }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="action-badge" [class]="'action-' + log.actionType?.toLowerCase()">
+                  {{ log.actionType }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-icon btn-details" (click)="viewLogDetails(log)" title="View Details">Details</button>
+                <button class="btn-icon btn-copy" (click)="copyLogDetails(log)" title="Copy Details">Copy</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" *ngIf="filteredLogs.length > 0">
+        <button [disabled]="currentPage === 1" (click)="previousPage()">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button [disabled]="currentPage === totalPages" (click)="nextPage()">Next</button>
+        <span class="page-info">Showing {{ getStartIndex() }}-{{ getEndIndex() }} of {{ allFilteredLogs.length }} logs</span>
+      </div>
+
+      <div class="no-data" *ngIf="filteredLogs.length === 0 && !isLoading">
+        <i class="icon">📋</i>
+        <p *ngIf="logs.length === 0">No audit logs available</p>
+        <p *ngIf="logs.length > 0">No logs match your filters</p>
+        <button class="btn btn-primary" (click)="resetFilters()" *ngIf="logs.length > 0">
+          Reset Filters
+        </button>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Loading audit logs...</p>
+      </div>
+    </div>
+
+    <!-- Modal for log details -->
+    <div class="modal" *ngIf="selectedLog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Audit Log Details</h3>
+          <button class="close-btn" (click)="selectedLog = null">×</button>
+        </div>
+
+        <div class="log-details">
+          <div class="detail-section">
+            <h4>Log Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <strong>Log ID:</strong> {{ selectedLog.id }}
+              </div>
+              <div class="detail-item">
+                <strong>Timestamp:</strong> {{ formatDateTime(selectedLog.createdAt) }}
+              </div>
+              <div class="detail-item">
+                <strong>IP Address:</strong> {{ selectedLog.ipAddress || 'N/A' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>User Information</h4>
+            <div class="user-card">
+              <div class="user-avatar">{{ getInitials(selectedLog.userEmail) }}</div>
+              <div class="user-info">
+                <div class="user-email">{{ selectedLog.userEmail || 'System' }}</div>
+                <div class="user-name" *ngIf="selectedLog.user?.fullName">
+                  {{ selectedLog.user.fullName }}
+                </div>
+                <div class="user-id" *ngIf="selectedLog.user?.id">
+                  User ID: {{ selectedLog.user.id }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>Action Details</h4>
+            <div class="action-card">
+              <div class="action-type">
+                <span class="action-badge-large" [class]="'action-' + selectedLog.actionType?.toLowerCase()">
+                  {{ selectedLog.actionType }}
+                </span>
+              </div>
+              <div class="entity-info">
+                <div class="entity-row">
+                  <strong>Entity Type:</strong>
+                  <span class="entity-badge">{{ selectedLog.entityType }}</span>
+                </div>
+                <div class="entity-row">
+                  <strong>Entity ID:</strong>
+                  <span class="entity-id">{{ selectedLog.entityId || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="selectedLog.description || selectedLog.changes">
+            <h4>Additional Information</h4>
+            <div class="additional-info">
+              <div *ngIf="selectedLog.description" class="info-item">
+                <strong>Description:</strong>
+                <div class="description-box">{{ selectedLog.description }}</div>
+              </div>
+              <div *ngIf="selectedLog.changes" class="info-item">
+                <strong>Changes:</strong>
+                <pre class="changes-box">{{ selectedLog.changes | json }}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="selectedLog = null">Close</button>
+          <button class="btn btn-primary" (click)="copyLogDetails(selectedLog)">
+            Copy Details
+          </button>
+        </div>
+      </div>
+    </div>
