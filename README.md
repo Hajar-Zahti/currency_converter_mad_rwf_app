@@ -70,7 +70,7 @@ Le projet est composé de trois parties :
 
 ## ▶️ Lancer le projet
 
-### Backend
+### Backend - Mobile - Admin web
 ```bash
 cd Currency_Converter_Backend
 mvn spring-boot:run
