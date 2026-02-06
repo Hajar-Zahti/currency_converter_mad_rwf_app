@@ -27,30 +27,43 @@ L’application utilise l’API ExchangeRate.host comme source externe de taux d
 
 Le projet est composé de trois parties :
 
-## Application Mobile (Utilisateur)
+## 📱 Application Mobile (Utilisateur)
 -Gestion des dépôts, conversions, transactions et statistiques.
 
-## Backend (API REST)
--Gestion de l’authentification, des règles de conversion, des transactions, des utilisateurs et de la synchronisation bancaire interne.
+## 🔙 Backend (API REST)
 
-## Dashboard Web (Admin)
--Supervision des utilisateurs, transactions, logs et statistiques globales.
+- Gestion de l’authentification
 
+- Gestion des règles de conversion
+
+- Gestion des transactions et des utilisateurs
+
+- Synchronisation bancaire interne
+
+## 🌐 Dashboard Web (Admin)
+
+- Supervision des utilisateurs
+
+- Gestion des transactions
+
+- Consultation des logs
+
+- Statistiques globales
 
 ## ⚙️ Technologies utilisées
 
-### Backend
+### 🔙 Backend
 - Java 17
 - Spring Boot
 - Spring Security
 - JPA / Hibernate
 - MySQL
 
-### Mobile
+### 📱 Mobile
 - React Native
 - Expo
 
-### Admin
+### 🌐 Admin
 - Angular
 - TypeScript
   
