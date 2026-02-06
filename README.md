@@ -1,4 +1,3 @@
-# currency_converter_mad_rwf_app
 # 💱 Currency Converter MAD ⇄ RWF
 
 Application complète de conversion de devises entre le Dirham Marocain (MAD) et le Franc Rwandais (RWF).
@@ -9,6 +8,19 @@ Cette application permet :
 - La gestion des utilisateurs
 - Le suivi des transactions
 - Une interface admin pour la supervision
+- 
+---
+## 🌍 API de taux de change
+
+L’application utilise l’API ExchangeRate.host comme source externe de taux de change.
+
+-API gratuite 
+
+-Taux mis à jour en temps réel
+
+-Utilisée pour le calcul des conversions MAD ⇄ RWF
+
+-Une marge est appliquée selon le sens de conversion côté backend
 
 ---
 
@@ -16,6 +28,14 @@ Cette application permet :
 
 Le projet est composé de trois parties :
 
+## Application Mobile (Utilisateur)
+-Gestion des dépôts, conversions, transactions et statistiques.
+
+## Backend (API REST)
+-Gestion de l’authentification, des règles de conversion, des transactions, des utilisateurs et de la synchronisation bancaire interne.
+
+## Dashboard Web (Admin)
+-Supervision des utilisateurs, transactions, logs et statistiques globales.
 
 ---
 
@@ -31,24 +51,41 @@ Le projet est composé de trois parties :
 ### Mobile
 - React Native
 - Expo
-- Axios
 
 ### Admin
 - Angular
 - TypeScript
-- Bootstrap
+  
+---
 
 ### 🔐 Authentification
 - JWT pour sécuriser les échanges entre le mobile, l’admin et le backend.
 
-
 ---
 
+## 🧰 Outils de développement
+
+- Spring Tool Suite (STS)
+- Visual Studio Code
+- Expo Go
+- Postman
+- Git & GitHub
 
 ## ▶️ Lancer le projet
 
 ### Backend
 ```bash
-cd backend-spring
+cd Currency_Converter_Backend
 mvn spring-boot:run
 
+### Backend
+```bash
+cd currency-converter-app
+npm install
+expo start
+
+### Admin Web
+```bash
+cd currency-converter-admin-dashboard
+npm install
+ng serve
