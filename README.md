@@ -8,7 +8,6 @@ Cette application permet :
 - La gestion des utilisateurs
 - Le suivi des transactions
 - Une interface admin pour la supervision
-- 
 ---
 ## 🌍 API de taux de change
 
@@ -56,6 +55,7 @@ Le projet est composé de trois parties :
 - TypeScript
   
 
+---
 ### 🔐 Authentification
 - JWT pour sécuriser les échanges entre le mobile, l’admin et le backend.
 
